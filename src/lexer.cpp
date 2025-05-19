@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include "token.h"
+#include <cstdio>
 
 // The actual implementation of the lexer is a single function gettok()
 // It's called to return the next token from standard input
@@ -65,6 +66,12 @@ Token TokenBuffer::getTok() {
     Operator = LastChar;
     LastChar = getchar();
     return tok_operator;
+  }
+
+  if (LastChar == '(' || LastChar == ')') {
+    Parentheses = LastChar;
+    LastChar = getchar();
+    return tok_parentheses;
   }
 
   // Finally, if the input doesn't match one of the above cases

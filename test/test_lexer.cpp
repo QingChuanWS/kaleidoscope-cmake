@@ -73,7 +73,7 @@ TEST(Lexer, GetTokOperator) {
   // Test the lexer with an operator input
   stdin = get_input_stream("+ - * /");
 
-    TokenBuffer lexer;
+  TokenBuffer lexer;
   // Read tokens and check their values
   EXPECT_EQ(lexer.getTok(), Token::tok_operator);
   EXPECT_EQ(lexer.getOperator(), '+');
@@ -84,4 +84,33 @@ TEST(Lexer, GetTokOperator) {
   EXPECT_EQ(lexer.getTok(), Token::tok_operator);
   EXPECT_EQ(lexer.getOperator(), '/');
   EXPECT_EQ(lexer.getTok(), Token::tok_eof);
+}
+
+TEST(Lexer, GetTokParentheses) {
+  // Test the lexer with an operator input
+  stdin = get_input_stream("( )");
+
+  TokenBuffer lexer;
+  // Read tokens and check their values
+  EXPECT_EQ(lexer.getTok(), Token::tok_parentheses);
+  EXPECT_EQ(lexer.getParentheses(), '(');
+  EXPECT_EQ(lexer.getTok(), Token::tok_parentheses);
+  EXPECT_EQ(lexer.getParentheses(), ')');
+}
+
+TEST(Lexer, GetFullSentence) {
+  // Test the lexer with an operator input
+  stdin = get_input_stream("def fib(x)");
+
+  TokenBuffer lexer;
+  // Read tokens and check their values
+  EXPECT_EQ(lexer.getTok(), Token::tok_def);
+  EXPECT_EQ(lexer.getTok(), Token::tok_identifier);
+  EXPECT_EQ(lexer.getIdentifier(), "fib");
+  EXPECT_EQ(lexer.getTok(), Token::tok_parentheses);
+  EXPECT_EQ(lexer.getParentheses(), '(');
+  EXPECT_EQ(lexer.getTok(), tok_identifier);
+  EXPECT_EQ(lexer.getIdentifier(), "x");
+  EXPECT_EQ(lexer.getTok(), Token::tok_parentheses);
+  EXPECT_EQ(lexer.getParentheses(), ')');
 }

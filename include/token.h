@@ -15,6 +15,7 @@ enum Token {
   tok_identifier = -4,
   tok_number = -5,
   tok_operator = -6,
+  tok_parentheses = -7,
 };
 
 inline std::string getTokenEnumerationString(int token) {
@@ -31,6 +32,8 @@ inline std::string getTokenEnumerationString(int token) {
     return "tok_extern";
   case tok_operator:
     return "tok_operator";
+  case tok_parentheses:
+    return "tok_parentheses";
   case tok_init:
     return "tok_init";
   default:
