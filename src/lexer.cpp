@@ -1,6 +1,8 @@
 #include "lexer.h"
 #include "token.h"
-#include <cstdio>
+
+// Provide a simple token buffer
+#define STREAMEOF std ::char_traits<char>::eof()
 
 // The actual implementation of the lexer is a single function gettok()
 // It's called to return the next token from standard input
@@ -9,7 +11,7 @@
 Token TokenBuffer::getTok() {
   // The first thing we need to do is ignore whitespaces between tokens
   while (isspace(LastChar)) {
-    LastChar = getchar();
+    LastChar = this->getchar();
   }
 
   // Next thing is recognize identifier and specific keywords like "def"
@@ -17,7 +19,7 @@ Token TokenBuffer::getTok() {
     IdentifierStr = LastChar;
 
     // Stacking together all alphanumeric characters into IdentifierStr
-    while (isalnum(LastChar = getchar())) {
+    while (isalnum(LastChar = this->getchar())) {
       IdentifierStr += LastChar;
     }
 
@@ -38,7 +40,7 @@ Token TokenBuffer::getTok() {
 
     do {
       NumStr += LastChar;
-      LastChar = getchar();
+      LastChar = this->getchar();
     } while (isdigit(LastChar) || LastChar == '.');
 
     // Convert numeric string to numeric value
@@ -51,10 +53,10 @@ Token TokenBuffer::getTok() {
   // and return the next token
   if (LastChar == '#') {
     do {
-      LastChar = getchar();
-    } while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
+      LastChar = this->getchar();
+    } while (LastChar != STREAMEOF && LastChar != '\n' && LastChar != '\r');
 
-    if (LastChar != EOF) {
+    if (LastChar != STREAMEOF) {
       return getTok();
     }
   }
@@ -64,19 +66,25 @@ Token TokenBuffer::getTok() {
   if (LastChar == '+' || LastChar == '-' || LastChar == '*' ||
       LastChar == '/' || LastChar == '%') {
     Operator = LastChar;
-    LastChar = getchar();
+    LastChar = this->getchar();
     return tok_operator;
   }
 
   if (LastChar == '(' || LastChar == ')') {
     Parentheses = LastChar;
-    LastChar = getchar();
+    LastChar = this->getchar();
     return tok_parentheses;
+  }
+
+  if (LastChar == ';' || LastChar == ',') {
+    Semicolons = LastChar;
+    LastChar = this->getchar();
+    return tok_semicolons;
   }
 
   // Finally, if the input doesn't match one of the above cases
   // it's either an operator character like '+' or the end of the file
-  if (LastChar == EOF) {
+  if (LastChar == STREAMEOF) {
     return tok_eof;
   }
 

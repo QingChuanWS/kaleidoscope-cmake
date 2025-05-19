@@ -6,6 +6,7 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/third-party/gtest ${CMAKE_BINARY_DIR}/third
 # 设置测试源码文件
 set(TEST_SOURCES
     test_lexer.cpp
+    test_parser.cpp
 )
 
 # 创建测试可执行文件

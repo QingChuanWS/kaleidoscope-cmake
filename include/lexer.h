@@ -2,15 +2,16 @@
 
 #include "token.h"
 #include <iostream>
+#include <memory>
+#include <sstream>
 #include <string>
-
-// Provide a simple token buffer
 
 class TokenBuffer {
 public:
-  TokenBuffer()
-      : CurTok(Token::tok_init), IdentifierStr(""), NumVal(0.0), Operator(' '),
-        Parentheses(' '), InputBuffer(std::cin.rdbuf()), LastChar(' ') {}
+  TokenBuffer(std::unique_ptr<std::istringstream> inputStream)
+      : InputStream(std::move(inputStream)), CurTok(Token::tok_init),
+        IdentifierStr(""), NumVal(0.0), Operator(' '), Parentheses(' '),
+        LastChar(' ') {}
 
   // The actual implementation of the lexer is a single function gettok()
   // It's called to return the next token from standard input
@@ -27,13 +28,28 @@ public:
 
   char getParentheses() const { return Parentheses; }
 
+  Token getCurTok() { return CurTok; }
+
+  char getSemicolons() { return Semicolons; }
+
 private:
+  int getchar() {
+    std::istream *stream = InputStream.get();
+    if (!stream)
+      return std::char_traits<char>::eof();
+    return stream->get();
+  }
+
+  std::unique_ptr<std::istringstream> InputStream;
+
   // Handling comments by skipping to the end of the line
   // and return the next token
   Token CurTok;
   // If the current token is an identifier
   // IdentifierStr will hold the name of the identifier
   std::string IdentifierStr;
+  // if the current token is an tok_semicolons
+  char Semicolons;
   // If the current token is a numeric literal
   // NumVal holds its value
   double NumVal;
@@ -41,8 +57,6 @@ private:
   char Operator;
   // If the current token is an comma
   char Parentheses;
-
-  std::streambuf *InputBuffer;
 
   int LastChar;
 };

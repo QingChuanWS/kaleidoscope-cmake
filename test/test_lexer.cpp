@@ -1,22 +1,12 @@
+#include "lexer.h"
+#include "test_utils.h"
 #include "token.h"
-#include <bits/types/FILE.h>
-#include <gtest/gtest.h>
-#include <lexer.h>
 
-FILE *get_input_stream(const char *input) {
-  // Use fmemopen to create a stream from the input string
-  FILE *stream = fmemopen((void *)input, strlen(input), "r");
-  if (!stream) {
-    perror("fmemopen failed");
-    exit(1);
-  }
-  return stream;
-}
+#include <gtest/gtest.h>
 
 TEST(Lexer, GetTokNumber) {
   // Test the lexer with a numeric input
-  stdin = get_input_stream("42.0");
-  TokenBuffer lexer;
+  TokenBuffer lexer(get_input_stream("42.0"));
 
   // Read tokens and check their values
   EXPECT_EQ(lexer.getTok(), Token::tok_number);
@@ -27,8 +17,7 @@ TEST(Lexer, GetTokNumber) {
 
 TEST(Lexer, GetTokIdentifier) {
   // Test the lexer with an identifier input
-  stdin = get_input_stream("foo");
-  TokenBuffer lexer;
+  TokenBuffer lexer(get_input_stream("foo"));
   // Read tokens and check their values
   auto tok = lexer.getTok();
   EXPECT_EQ(tok, Token::tok_identifier)
@@ -39,8 +28,7 @@ TEST(Lexer, GetTokIdentifier) {
 
 TEST(Lexer, GetTokDef) {
   // Test the lexer with a def input
-  stdin = get_input_stream("def");
-  TokenBuffer lexer;
+  TokenBuffer lexer(get_input_stream("def"));
 
   // Read tokens and check their values
   auto tok = lexer.getTok();
@@ -50,8 +38,7 @@ TEST(Lexer, GetTokDef) {
 
 TEST(Lexer, GetTokExtern) {
   // Test the lexer with an extern input
-  stdin = get_input_stream("extern");
-  TokenBuffer lexer;
+  TokenBuffer lexer(get_input_stream("extern"));
 
   // Read tokens and check their values
   auto tok = lexer.getTok();
@@ -63,17 +50,14 @@ TEST(Lexer, GetTokExtern) {
 
 TEST(Lexer, GetTokComment) {
   // Test the lexer with a comment input
-  stdin = get_input_stream("# This is a comment\n");
-  TokenBuffer lexer;
+  TokenBuffer lexer(get_input_stream("# This is a comment\n"));
   // Read tokens and check their values
   EXPECT_EQ(lexer.getTok(), Token::tok_eof);
 }
 
 TEST(Lexer, GetTokOperator) {
   // Test the lexer with an operator input
-  stdin = get_input_stream("+ - * /");
-
-  TokenBuffer lexer;
+  TokenBuffer lexer(get_input_stream("+ - * /"));
   // Read tokens and check their values
   EXPECT_EQ(lexer.getTok(), Token::tok_operator);
   EXPECT_EQ(lexer.getOperator(), '+');
@@ -88,9 +72,7 @@ TEST(Lexer, GetTokOperator) {
 
 TEST(Lexer, GetTokParentheses) {
   // Test the lexer with an operator input
-  stdin = get_input_stream("( )");
-
-  TokenBuffer lexer;
+  TokenBuffer lexer(get_input_stream("( )"));
   // Read tokens and check their values
   EXPECT_EQ(lexer.getTok(), Token::tok_parentheses);
   EXPECT_EQ(lexer.getParentheses(), '(');
@@ -98,11 +80,19 @@ TEST(Lexer, GetTokParentheses) {
   EXPECT_EQ(lexer.getParentheses(), ')');
 }
 
+TEST(Lexer, GetTokSemicolons) {
+  // Test the lexer with an operator input
+  TokenBuffer lexer(get_input_stream("; ,"));
+  // Read tokens and check their values
+  EXPECT_EQ(lexer.getTok(), Token::tok_semicolons);
+  EXPECT_EQ(lexer.getSemicolons(), ';');
+  EXPECT_EQ(lexer.getTok(), Token::tok_semicolons);
+  EXPECT_EQ(lexer.getSemicolons(), ',');
+}
+
 TEST(Lexer, GetFullSentence) {
   // Test the lexer with an operator input
-  stdin = get_input_stream("def fib(x)");
-
-  TokenBuffer lexer;
+  TokenBuffer lexer(get_input_stream("def fib(x)"));
   // Read tokens and check their values
   EXPECT_EQ(lexer.getTok(), Token::tok_def);
   EXPECT_EQ(lexer.getTok(), Token::tok_identifier);
