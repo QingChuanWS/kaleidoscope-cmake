@@ -2,13 +2,29 @@
 
 #pragma once
 
+#include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Verifier.h"
+
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
+
 
 class ExprAST {
 public:
   virtual ~ExprAST() = default;
+
+  virtual llvm::Value *codegen() = 0;
 };
 
 class NumberExprAST : public ExprAST {
@@ -17,6 +33,8 @@ class NumberExprAST : public ExprAST {
 public:
   NumberExprAST(double Val) : Val(Val) {}
   double getVal() const { return Val; }
+
+  llvm::Value *codegen() override;
 };
 
 class VariableExprAST : public ExprAST {
@@ -25,6 +43,8 @@ class VariableExprAST : public ExprAST {
 public:
   VariableExprAST(const std::string &Name) : Name(Name) {}
   const std::string &getName() const { return Name; }
+
+  llvm::Value *codegen() override;
 };
 
 class BinaryExprAST : public ExprAST {
@@ -39,6 +59,8 @@ public:
   char getOp() const { return Op; }
   const ExprAST *getLHS() const { return LHS.get(); }
   const ExprAST *getRHS() const { return RHS.get(); }
+  
+  llvm::Value *codegen() override;
 };
 
 class CallExprAST : public ExprAST {
@@ -52,6 +74,8 @@ public:
 
   const std::string &getCallee() const { return Callee; }
   const std::vector<std::unique_ptr<ExprAST>> &getArgs() const { return Args; }
+  
+  llvm::Value *codegen() override;
 };
 
 class PrototypeAST {
@@ -64,6 +88,8 @@ public:
 
   const std::string &getName() const { return Name; }
   const std::vector<std::string> &getArgs() const { return Args; }
+  
+  llvm::Function *codegen();
 };
 
 class FunctionAST {
@@ -77,4 +103,8 @@ public:
 
   const PrototypeAST *getProto() const { return Proto.get(); }
   const ExprAST *getBody() const { return Body.get(); }
+  
+  llvm::Function *codegen();
 };
+
+void InitializeModule();

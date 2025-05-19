@@ -25,17 +25,17 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
 # 添加LLVM头文件路径
 include_directories(${LLVM_INCLUDE_DIRS})
-separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
-add_definitions(${LLVM_DEFINITIONS_LIST})
+add_definitions(${LLVM_DEFINITIONS})
+llvm_map_components_to_libnames(LLVM_LIBS
+  core support
+)
 
-add_library(kaleidoscope_lib STATIC ${SOURCES})
-
-# 链接LLVM库
-llvm_map_components_to_libnames(llvm_libs all)
-target_link_libraries(kaleidoscope_lib ${llvm_libs})
+add_library(kaleidoscope_lib SHARED ${SOURCES})
+target_link_libraries(kaleidoscope_lib ${LLVM_LIBS})
 
 # 添加可执行文件
-add_executable(kaleidoscope ${CMAKE_SOURCE_DIR}/tools/main.cpp ${SOURCES})
+add_executable(kaleidoscope ${CMAKE_SOURCE_DIR}/tools/main.cpp)
+target_link_libraries(kaleidoscope kaleidoscope_lib)
 
 if(ENABLE_TEST)
     add_subdirectory(test)

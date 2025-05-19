@@ -7,17 +7,6 @@
 #include <map>
 #include <memory>
 
-/// LogError* - These are little helper functions for error handling.
-inline std::unique_ptr<ExprAST> LogError(const char *Str) {
-  fprintf(stderr, "Error: %s\n", Str);
-  return nullptr;
-}
-
-inline std::unique_ptr<PrototypeAST> LogErrorP(const char *Str) {
-  LogError(Str);
-  return nullptr;
-}
-
 class Parser {
   std::unique_ptr<TokenBuffer> lexer;
   /// BinopPrecedence - This holds the precedence for each binary operator that
