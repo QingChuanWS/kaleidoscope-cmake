@@ -8,7 +8,7 @@
 
 class TokenBuffer {
 public:
-  TokenBuffer(std::unique_ptr<std::istringstream> inputStream)
+  TokenBuffer(std::unique_ptr<std::istream> inputStream)
       : InputStream(std::move(inputStream)), CurTok(Token::tok_init),
         IdentifierStr(""), NumVal(0.0), Operator(' '), Parentheses(' '),
         LastChar(' ') {}
@@ -34,13 +34,12 @@ public:
 
 private:
   int getchar() {
-    std::istream *stream = InputStream.get();
-    if (!stream)
+    if (!InputStream)
       return std::char_traits<char>::eof();
-    return stream->get();
+    return InputStream->get();
   }
 
-  std::unique_ptr<std::istringstream> InputStream;
+  std::unique_ptr<std::istream> InputStream;
 
   // Handling comments by skipping to the end of the line
   // and return the next token
