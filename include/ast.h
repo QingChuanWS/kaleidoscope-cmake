@@ -2,29 +2,18 @@
 
 #pragma once
 
-#include "llvm/ADT/APFloat.h"
-#include "llvm/ADT/STLExtras.h"
-#include "llvm/IR/BasicBlock.h"
-#include "llvm/IR/Constants.h"
-#include "llvm/IR/DerivedTypes.h"
-#include "llvm/IR/Function.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Type.h"
-#include "llvm/IR/Verifier.h"
+#include <llvm/IR/Value.h>
 
 #include <memory>
 #include <string>
 #include <vector>
-#include <map>
 
+class ASTVisitor;
 
 class ExprAST {
 public:
   virtual ~ExprAST() = default;
-
-  virtual llvm::Value *codegen() = 0;
+  virtual llvm::Value *accept(ASTVisitor &visitor) = 0;
 };
 
 class NumberExprAST : public ExprAST {
@@ -34,7 +23,7 @@ public:
   NumberExprAST(double Val) : Val(Val) {}
   double getVal() const { return Val; }
 
-  llvm::Value *codegen() override;
+  llvm::Value *accept(ASTVisitor &visitor) override;
 };
 
 class VariableExprAST : public ExprAST {
@@ -44,7 +33,7 @@ public:
   VariableExprAST(const std::string &Name) : Name(Name) {}
   const std::string &getName() const { return Name; }
 
-  llvm::Value *codegen() override;
+  llvm::Value *accept(ASTVisitor &visitor) override;
 };
 
 class BinaryExprAST : public ExprAST {
@@ -57,10 +46,10 @@ public:
       : Op(Op), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
 
   char getOp() const { return Op; }
-  const ExprAST *getLHS() const { return LHS.get(); }
-  const ExprAST *getRHS() const { return RHS.get(); }
-  
-  llvm::Value *codegen() override;
+  std::unique_ptr<ExprAST> &getLHS() { return LHS; }
+  std::unique_ptr<ExprAST> &getRHS() { return RHS; }
+
+  llvm::Value *accept(ASTVisitor &visitor) override;
 };
 
 class CallExprAST : public ExprAST {
@@ -73,9 +62,9 @@ public:
       : Callee(Callee), Args(std::move(Args)) {}
 
   const std::string &getCallee() const { return Callee; }
-  const std::vector<std::unique_ptr<ExprAST>> &getArgs() const { return Args; }
-  
-  llvm::Value *codegen() override;
+  std::vector<std::unique_ptr<ExprAST>> &getArgs() { return Args; }
+
+  llvm::Value *accept(ASTVisitor &visitor) override;
 };
 
 class PrototypeAST {
@@ -87,9 +76,9 @@ public:
       : Name(Name), Args(std::move(Args)) {}
 
   const std::string &getName() const { return Name; }
-  const std::vector<std::string> &getArgs() const { return Args; }
-  
-  llvm::Function *codegen();
+  std::vector<std::string> &getArgs() { return Args; }
+
+  llvm::Function *accept(ASTVisitor &visitor);
 };
 
 class FunctionAST {
@@ -101,10 +90,8 @@ public:
               std::unique_ptr<ExprAST> Body)
       : Proto(std::move(Proto)), Body(std::move(Body)) {}
 
-  const PrototypeAST *getProto() const { return Proto.get(); }
-  const ExprAST *getBody() const { return Body.get(); }
-  
-  llvm::Function *codegen();
-};
+  std::unique_ptr<PrototypeAST> &getProto() { return Proto; }
+  std::unique_ptr<ExprAST> &getBody() { return Body; }
 
-void InitializeModule();
+  llvm::Function *accept(ASTVisitor &visitor);
+};

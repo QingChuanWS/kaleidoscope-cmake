@@ -208,13 +208,6 @@ void Parser::HandleDefinition() {
     fprintf(stderr, "\n");
     fprintf(stderr, "Function AST: ");
     print(*FnAST);
-    if (auto *FnIR = FnAST->codegen()) {
-      fprintf(stderr, "Parsed a function definition.\n");
-      fprintf(stderr, "Function IR: ");
-      FnIR->print(llvm::errs());
-    } else {
-      fprintf(stderr, "Error generating function IR.\n");
-    }
     fprintf(stderr, "Parsed a function definition.\n");
   } else {
     // Skip token for error recovery.
@@ -224,13 +217,6 @@ void Parser::HandleDefinition() {
 
 void Parser::HandleExtern() {
   if (auto ProtoAST = ParseExtern()) {
-    if (auto *ProtoIR = ProtoAST->codegen()) {
-      fprintf(stderr, "Parsed an extern prototype.\n");
-      fprintf(stderr, "Prototype IR: ");
-      ProtoIR->print(llvm::errs());
-    } else {
-      fprintf(stderr, "Error generating extern prototype IR.\n");
-    }
     fprintf(stderr, "Prototype AST: ");
     print(*ProtoAST);
     fprintf(stderr, "Parsed an extern prototype.\n");
@@ -244,13 +230,6 @@ void Parser::HandleTopLevelExpression() {
   // Evaluate a top-level expression into an anonymous function.
   if (auto FnAST = ParseTopLevelExpr()) {
     fprintf(stderr, "\n");
-    if (auto *FnIR = FnAST->codegen()) {
-      fprintf(stderr, "Parsed a top-level expression.\n");
-      fprintf(stderr, "Function IR: ");
-      FnIR->print(llvm::errs());
-    } else {
-      fprintf(stderr, "Error generating top-level expression IR.\n");
-    }
     fprintf(stderr, "Function AST: ");
     print(*FnAST);
     fprintf(stderr, "Parsed a top-level expr\n");
@@ -262,7 +241,6 @@ void Parser::HandleTopLevelExpression() {
 
 /// top ::= definition | external | expression | ';'
 void Parser::MainLoop() {
-  InitializeModule();
   lexer->getNextToken();
   while (true) {
     fprintf(stderr, "ready> ");
