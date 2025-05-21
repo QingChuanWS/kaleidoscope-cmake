@@ -112,6 +112,9 @@ llvm::Function *LLVMCodeGenVisitor::visit(FunctionAST &expr) {
     // Validate the generated code, checking for consistency.
     verifyFunction(*TheFunction);
 
+    // Optimize the function.
+    TheFPM->run(*TheFunction, *TheFAM);
+
     return TheFunction;
   }
 

@@ -1,5 +1,6 @@
 #include "ast.h"
 #include "codegen.h"
+#include "kaleidoscope.h"
 #include "lexer.h"
 #include "parser.h"
 #include "token.h"
@@ -76,6 +77,10 @@ void MainLoop(Parser &parser, LLVMCodeGenVisitor &visitor) {
 int main() {
   // get input from standard input
   auto inputStream = std::make_unique<std::istream>(std::cin.rdbuf());
+
+  llvm::InitializeNativeTarget();
+  llvm::InitializeNativeTargetAsmPrinter();
+  llvm::InitializeNativeTargetAsmParser();
 
   Parser parser(
       std::move(std::make_unique<TokenBuffer>(std::move(inputStream))));

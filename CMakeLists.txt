@@ -27,7 +27,7 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
 llvm_map_components_to_libnames(LLVM_LIBS
-  core support
+  core orcjit native
 )
 
 add_library(kaleidoscope_lib SHARED ${SOURCES})
