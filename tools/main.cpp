@@ -5,18 +5,15 @@
 #include "token.h"
 #include "utils.h"
 
-#include <cstdio>
 #include <iostream>
 #include <memory>
 
 void HandleDefinition(Parser &parser, LLVMCodeGenVisitor &visitor) {
-  fprintf(stderr, "Parsing a function definition.\n");
+  CLI_INFO("Parsing a function definition.\n");
   if (auto FnAST = parser.ParseDefinition()) {
-    fprintf(stderr, "AST Tree: \n");
-    print(*FnAST);
+    PRINT_AST(*FnAST);
     if (auto *FnIR = FnAST->accept(visitor)) {
-      fprintf(stderr, "print FnAST IR: \n");
-      FnIR->print(llvm::errs());
+      PRINT_IR(FnIR);
     }
   } else {
     // Skip token for error recovery.
@@ -25,14 +22,11 @@ void HandleDefinition(Parser &parser, LLVMCodeGenVisitor &visitor) {
 }
 
 void HandleExtern(Parser &parser, LLVMCodeGenVisitor &visitor) {
-  fprintf(stderr, "Parsing an extern prototype.\n");
+  CLI_INFO("Parsing a extern prototype.\n");
   if (auto ProtoAST = parser.ParseExtern()) {
-    fprintf(stderr, "AST Tree: \n");
-    print(*ProtoAST);
-
+    PRINT_AST(*ProtoAST);
     if (auto *ProtoIR = ProtoAST->accept(visitor)) {
-      fprintf(stderr, "print Proto IR \n");
-      ProtoIR->print(llvm::errs());
+      PRINT_IR(ProtoIR);
     }
   } else {
     // Skip token for error recovery.
@@ -41,14 +35,11 @@ void HandleExtern(Parser &parser, LLVMCodeGenVisitor &visitor) {
 }
 
 void HandleTopLevelExpression(Parser &parser, LLVMCodeGenVisitor &visitor) {
-  // Evaluate a top-level expression into an anonymous function.
-  fprintf(stderr, "Parsing a top-level expr\n");
+  CLI_INFO("Parsing a top-level expr\n");
   if (auto FnAST = parser.ParseTopLevelExpr()) {
-    fprintf(stderr, "AST Tree: \n");
-    print(*FnAST);
+    PRINT_AST(*FnAST);
     if (auto *FnIR = FnAST->accept(visitor)) {
-      fprintf(stderr, "print Top Level Expression IR \n");
-      FnIR->print(llvm::errs());
+      PRINT_IR(FnIR);
     }
   } else {
     // Skip token for error recovery.
@@ -58,13 +49,13 @@ void HandleTopLevelExpression(Parser &parser, LLVMCodeGenVisitor &visitor) {
 
 /// top ::= definition | external | expression | ';'
 void MainLoop(Parser &parser, LLVMCodeGenVisitor &visitor) {
-  fprintf(stderr, "ready> ");
+  CLI_INFO("ready> ");
   parser.ModeToken();
   while (true) {
-    fprintf(stderr, "ready> ");
+    CLI_INFO("ready> ");
     switch (parser.getCurTok()) {
     case tok_eof:
-      fprintf(stderr, "get eof token.\n");
+      CLI_INFO("get eof token.\n");
       return;
     case tok_semicolons: // ignore top-level semicolons.
       parser.ModeToken();
