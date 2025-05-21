@@ -3,7 +3,6 @@
 #pragma once
 
 #include "ast.h"
-#include "utils.h"
 
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/DerivedTypes.h"
@@ -18,8 +17,8 @@
 
 class ASTVisitor {
 public:
-  virtual llvm::Value *visit(NumberExprAST &expr) = 0;
-  virtual llvm::Value *visit(VariableExprAST &expr) = 0;
+  virtual llvm::Value *visit(const NumberExprAST &expr) = 0;
+  virtual llvm::Value *visit(const VariableExprAST &expr) = 0;
   virtual llvm::Value *visit(BinaryExprAST &expr) = 0;
   virtual llvm::Value *visit(CallExprAST &expr) = 0;
   virtual llvm::Function *visit(PrototypeAST &proto) = 0;
@@ -45,8 +44,8 @@ public:
     Builder = std::make_unique<llvm::IRBuilder<>>(*TheContext);
   }
 
-  llvm::Value *visit(NumberExprAST &expr) override;
-  llvm::Value *visit(VariableExprAST &expr) override;
+  llvm::Value *visit(const NumberExprAST &expr) override;
+  llvm::Value *visit(const VariableExprAST &expr) override;
   llvm::Value *visit(BinaryExprAST &expr) override;
   llvm::Value *visit(CallExprAST &expr) override;
 

@@ -2,19 +2,20 @@
 
 #include "codegen.h"
 #include "ast.h"
+#include "utils.h"
 
 #include "llvm/ADT/APFloat.h"
 #include "llvm/IR/Constants.h"
 
-llvm::Value *LLVMCodeGenVisitor::visit(NumberExprAST &expr) {
+llvm::Value *LLVMCodeGenVisitor::visit(const NumberExprAST &expr) {
   return llvm::ConstantFP::get(*TheContext, llvm::APFloat(expr.getVal()));
 }
 
-llvm::Value *LLVMCodeGenVisitor::visit(VariableExprAST &expr) {
+llvm::Value *LLVMCodeGenVisitor::visit(const VariableExprAST &expr) {
   // Look this variable up in the function.
   llvm::Value *V = NamedValues[expr.getName()];
   if (!V)
-    return LogErrorV("Unknown variable name");
+    return LogErrorV("[Codegen]Unknown variable name");
   return V;
 }
 

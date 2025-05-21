@@ -20,6 +20,11 @@ public:
                                                 {'-', 20},
                                                 {'*', 40}})
       : lexer(std::move(lexer)), BinopPrecedence(BinopPrecedence) {}
+  // mode to the next token.
+  void ModeToken() { lexer->getNextToken(); }
+
+  Token getCurTok() { return lexer->getCurTok(); }
+
   int GetTokPrecedence(char Operator);
   /// parenexpr ::= '(' expression ')'
   std::unique_ptr<ExprAST> ParseParenExpr();
@@ -53,13 +58,4 @@ public:
 
   /// toplevelexpr ::= expression
   std::unique_ptr<FunctionAST> ParseTopLevelExpr();
-
-  void HandleDefinition();
-
-  void HandleExtern();
-
-  void HandleTopLevelExpression();
-
-  /// top ::= definition | ';'
-  void MainLoop();
 };

@@ -4,7 +4,6 @@
 #include "token.h"
 #include "utils.h"
 
-#include <cstdio>
 #include <memory>
 
 /// GetTokPrecedence - Get the precedence of the pending binary operator token.
@@ -63,7 +62,6 @@ std::unique_ptr<ExprAST> Parser::ParseBinOpRHS(int ExprPrec,
                                                std::unique_ptr<ExprAST> LHS) {
   // If this is a binop, find its precedence.
   while (true) {
-
     int TokPrec = lexer->getCurTok() == tok_operator
                       ? GetTokPrecedence(lexer->getOperator())
                       : -1;
@@ -201,65 +199,4 @@ std::unique_ptr<FunctionAST> Parser::ParseTopLevelExpr() {
 std::unique_ptr<PrototypeAST> Parser::ParseExtern() {
   lexer->getNextToken(); // eat extern.
   return ParsePrototype();
-}
-
-void Parser::HandleDefinition() {
-  if (auto FnAST = ParseDefinition()) {
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Function AST: ");
-    print(*FnAST);
-    fprintf(stderr, "Parsed a function definition.\n");
-  } else {
-    // Skip token for error recovery.
-    lexer->getNextToken();
-  }
-}
-
-void Parser::HandleExtern() {
-  if (auto ProtoAST = ParseExtern()) {
-    fprintf(stderr, "Prototype AST: ");
-    print(*ProtoAST);
-    fprintf(stderr, "Parsed an extern prototype.\n");
-  } else {
-    // Skip token for error recovery.
-    lexer->getNextToken();
-  }
-}
-
-void Parser::HandleTopLevelExpression() {
-  // Evaluate a top-level expression into an anonymous function.
-  if (auto FnAST = ParseTopLevelExpr()) {
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Function AST: ");
-    print(*FnAST);
-    fprintf(stderr, "Parsed a top-level expr\n");
-  } else {
-    // Skip token for error recovery.
-    lexer->getNextToken();
-  }
-}
-
-/// top ::= definition | external | expression | ';'
-void Parser::MainLoop() {
-  lexer->getNextToken();
-  while (true) {
-    fprintf(stderr, "ready> ");
-    switch (lexer->getCurTok()) {
-    case tok_eof:
-      fprintf(stderr, "get eof token.\n");
-      return;
-    case tok_semicolons: // ignore top-level semicolons.
-      lexer->getNextToken();
-      break;
-    case tok_def:
-      HandleDefinition();
-      break;
-    case tok_extern:
-      HandleExtern();
-      break;
-    default:
-      HandleTopLevelExpression();
-      break;
-    }
-  }
 }

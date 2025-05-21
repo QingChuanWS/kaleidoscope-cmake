@@ -9,20 +9,20 @@
 
 TEST(Parser, Function1) {
   std::string input = R"(def foo(x y) x+foo(y, 4.0);)";
-  Parser(std::make_unique<TokenBuffer>(get_input_stream(input))).MainLoop();
+  Parser(std::make_unique<TokenBuffer>(get_input_stream(input)));
 }
 
 TEST(Parser, Function2) {
   std::string input = R"(def foo(x y) x+y y;)";
-  Parser(std::make_unique<TokenBuffer>(get_input_stream(input))).MainLoop();
+  Parser(std::make_unique<TokenBuffer>(get_input_stream(input)));
 }
 
 TEST(Parser, Function3) {
   std::string input = R"(def foo(x y) x+y );)";
-  Parser(std::make_unique<TokenBuffer>(get_input_stream(input))).MainLoop();
+  Parser(std::make_unique<TokenBuffer>(get_input_stream(input)));
 }
 
 TEST(Parser, Function4) {
   std::string input = R"(extern sin(a);)";
-  Parser(std::make_unique<TokenBuffer>(get_input_stream(input))).MainLoop();
+  Parser(std::make_unique<TokenBuffer>(get_input_stream(input)));
 }
